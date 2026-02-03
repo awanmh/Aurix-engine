@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  # Redis for inter-service communication
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL for data storage
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: aurix
+      POSTGRES_USER: aurix
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aurix_secure_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aurix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Go Services - Data Collector
+  go-collector:
+    build:
+      context: ./go-services
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - CONFIG_PATH=/app/config/config.yaml
+    volumes:
+      - ./config:/app/config:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Python Services - Decision Engine
+  decision-engine:
+    build:
+      context: ./python-services
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://aurix:${POSTGRES_PASSWORD:-aurix_secure_password}@postgres:5432/aurix
+      - CONFIG_PATH=/app/config/config.yaml
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+      - ./models:/app/models
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: python decision_engine.py --config /app/config/config.yaml
+
+volumes:
+  redis_data:
+  postgres_data:

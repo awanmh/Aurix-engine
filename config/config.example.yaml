@@ -1,0 +1,28 @@
+database:
+  path: "data/aurix.db"
+  backup_interval_hours: 6
+
+binance:
+  api_key: "YOUR_API_KEY_HERE"
+  api_secret: "YOUR_API_SECRET_HERE"
+  testnet: true
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  channels:
+    market_data: "aurix:market_data"
+    signals: "aurix:signals"
+
+risk:
+  max_drawdown_pct: 0.05
+  max_position_size_pct: 0.1
+  daily_loss_limit_pct: 0.02
+  initial_capital: 1000.0
+
+ml:
+  model_dir: "models"
+  min_confidence: 0.65
+  retrain_interval_days: 7

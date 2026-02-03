@@ -1,0 +1,8 @@
+{
+  "version": "v20260201_215513_long",
+  "trained_at": "2026-02-01T21:55:13.924174",
+  "accuracy": 0.91,
+  "auc_roc": 0.9983942191890807,
+  "train_samples": 100,
+  "calibration_error": 0.0
+}

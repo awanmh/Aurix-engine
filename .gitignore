@@ -1,0 +1,33 @@
+# System
+__pycache__/
+*.py[cod]
+*.so
+.DS_Store
+Thumbs.db
+*$py.class
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Environment
+.env
+.venv
+env/
+venv/
+bin/
+
+# Aurix Specific - EXCLUDE SENSITIVE DATA
+data/
+models/
+logs/
+reports/
+
+# EXCLUDE CONFIG (Secrets)
+config/*.yaml
+!config/config.example.yaml
+
+# Go
+go-services/bin/
+*.exe
+*.test
